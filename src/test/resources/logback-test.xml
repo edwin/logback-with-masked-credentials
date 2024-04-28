@@ -9,16 +9,20 @@
         </encoder>
     </appender>
 
-    <logger name="com.edw" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE" />
-    </logger>
+    <appender name="CUSTOM-HTTP-CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){"(\"Authorization.*$)", "\"Authorization: xxxxx\""}%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
 
     <logger name="com.edw" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE" />
     </logger>
 
     <logger name="org.apache.hc.client5.http.wire" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="CUSTOM-HTTP-CONSOLE" />
     </logger>
 
     <root level="INFO">
