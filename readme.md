@@ -1,5 +1,7 @@
 # Masking Sensitive Authorization Headers in Logback
 
+## Initial Condition
+
 This is what `Apache HttpClient` logs looks like when we use DEBUG as its settings, and we can see that is some **sensitive** values displayed here, for example `Authorization` Headers.
 
 ```
@@ -46,4 +48,61 @@ Above logs is being printed by using below `Logback` configuration,
         <appender-ref ref="CONSOLE" />
     </root>
 </configuration>
+```
+
+## Logs with Masked Condition
+
+With below custom logging pattern, adding `CUSTOM-HTTP-CONSOLE` that will do pattern `replace` functionality
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="CUSTOM-HTTP-CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){"(\"Authorization.*$)", "\"Authorization: xxxxx\""}%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="com.edw" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE" />
+    </logger>
+
+    <logger name="org.apache.hc.client5.http.wire" level="DEBUG" additivity="false">
+        <appender-ref ref="CUSTOM-HTTP-CONSOLE" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
+```
+
+which will resulting in below logs result where `Authorization` header is being masked.
+```
+08:56:23.046 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "GET / HTTP/1.1[\r][\n]"
+08:56:23.046 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept-Encoding: text/plain[\r][\n]"
+08:56:23.047 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Accept-Charset: utf-8[\r][\n]"
+08:56:23.047 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Authorization: xxxxx"
+08:56:23.047 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Host: localhost:8080[\r][\n]"
+08:56:23.047 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Connection: keep-alive[\r][\n]"
+08:56:23.047 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "User-Agent: Apache-HttpClient/5.1.4 (Java/17.0.6)[\r][\n]"
+08:56:23.047 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "[\r][\n]"
+08:56:23.064 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "HTTP/1.1 200 OK[\r][\n]"
+08:56:23.064 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Matched-Stub-Id: eccc2faf-5b55-4850-981e-a0ef26219c87[\r][\n]"
+08:56:23.064 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Transfer-Encoding: chunked[\r][\n]"
+08:56:23.064 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
+08:56:23.069 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "b[\r][\n]"
+08:56:23.069 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Hello World[\r][\n]"
+08:56:23.069 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "0[\r][\n]"
+08:56:23.069 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
 ```
