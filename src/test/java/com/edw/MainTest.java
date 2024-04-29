@@ -6,7 +6,6 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.HeaderElement;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,7 +59,7 @@ public class MainTest {
         request.addHeader("Accept-Encoding", "text/plain");
         request.addHeader("Accept-Charset", "utf-8");
 
-        // authentication header
+        // authentication header --- this is a sample of sensitive value that we are going to masked
         request.addHeader("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiS.jwt-sample.cpQcLckrTofjLZtCFFcMfThBNWD");
 
         CloseableHttpResponse httpResponse = httpClient.execute(request);
