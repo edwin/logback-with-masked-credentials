@@ -12,7 +12,7 @@
     <appender name="CUSTOM-HTTP-CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){"(.*Authorization.*|.*Content-Type:) .*\"", "$1 xxxxx\""}%n</pattern>
+            <pattern>${mask.pattern}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
