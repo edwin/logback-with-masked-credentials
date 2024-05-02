@@ -18,6 +18,9 @@ public class CustomConsoleAppender extends AppenderBase<ILoggingEvent> {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
+    String defaultPattern = "(.*Authorization:|.*Content-Type:) .*\"";
+    String replacement = "$1 xxx\"";
+
     public CustomConsoleAppender() {
         super();
         start();
@@ -25,9 +28,10 @@ public class CustomConsoleAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     public void append(ILoggingEvent iLoggingEvent) {
-
+	String value = System.getenv("MASK_PATTERN");
+        String pattern =  value != null ? value : defaultPattern;
         String modifiedFormattedMessage = iLoggingEvent.getFormattedMessage();
-        modifiedFormattedMessage = modifiedFormattedMessage.replaceAll("(\"Authorization.*$)", "\"Authorization: xxxxx\"");
+        modifiedFormattedMessage = modifiedFormattedMessage.replaceAll(pattern, "$1 xxx\"");
 
         System.out.println(
                 simpleDateFormat.format(new Date()) + " [" +
