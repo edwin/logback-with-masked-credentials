@@ -68,7 +68,7 @@ With below custom logging pattern, adding `CUSTOM-HTTP-CONSOLE` that will do pat
     <appender name="CUSTOM-HTTP-CONSOLE"
               class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){"(\"Authorization.*$)", "\"Authorization: xxxxx\""}%n</pattern>
+            <pattern>${mask.pattern}</pattern>
             <charset>utf8</charset>
         </encoder>
     </appender>
@@ -85,6 +85,12 @@ With below custom logging pattern, adding `CUSTOM-HTTP-CONSOLE` that will do pat
         <appender-ref ref="CONSOLE" />
     </root>
 </configuration>
+```
+
+Run the test, passing the value of `mask.pattern` variable, using the command 
+
+```
+mvn -Dmask.pattern='%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){"(.*Authorization:) .*\"", "$1 xxxxx\""}%n' test|tee out.log
 ```
 
 which will resulting in below logs result where `Authorization` header is being masked.
@@ -107,6 +113,22 @@ which will resulting in below logs result where `Authorization` header is being 
 08:56:23.069 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
 ```
 
+You can add more patterns. For example, if the `Content-Type` needs to be masked together with the `Authorization`, then you can modify the pattern like this:
+
+```
+mvn -Dmask.pattern='%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){"(.*Authorization:|.*Content-Type:) .*\"", "$1 xxxxx\""}%n' test|tee out.log
+```
+
+Verify that the `Content-Type` and the `Authorization` headers are masked:
+
+```
+$ grep xxx out.log
+15:09:50.184 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 >> "Content-Type: xxxxx"
+15:09:50.296 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-0 << "Content-Type: xxxxx"
+15:09:50.309 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 >> "Authorization: xxxxx"
+15:09:50.324 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-2 >> "Content-Type: xxxxx"
+15:09:50.330 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-2 << "Content-Type: xxxxx"
+```
 
 ## Logs with Masked Condition Configured by using Java files
 With below custom logging pattern, adding `CUSTOM-HTTP-CONSOLE-2` that will do masking functionality
