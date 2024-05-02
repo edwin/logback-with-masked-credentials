@@ -17,12 +17,19 @@
         </encoder>
     </appender>
 
+    <appender name="CUSTOM-HTTP-CONSOLE-2"
+              class="com.edw.config.CustomConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+    </appender>
+
     <logger name="com.edw" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE" />
     </logger>
 
     <logger name="org.apache.hc.client5.http.wire" level="DEBUG" additivity="false">
-        <appender-ref ref="CUSTOM-HTTP-CONSOLE" />
+        <appender-ref ref="CUSTOM-HTTP-CONSOLE-2" />
     </logger>
 
     <root level="INFO">
