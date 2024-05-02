@@ -171,6 +171,9 @@ public class CustomConsoleAppender extends AppenderBase<ILoggingEvent> {
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
 
+    String defaultPattern = "(.*Authorization:|.*Content-Type:) .*\"";
+    String replacement = "$1 xxx\"";
+
     public CustomConsoleAppender() {
         super();
         start();
@@ -178,9 +181,10 @@ public class CustomConsoleAppender extends AppenderBase<ILoggingEvent> {
 
     @Override
     public void append(ILoggingEvent iLoggingEvent) {
-
+	String value = System.getenv("MASK_PATTERN");
+        String pattern =  value != null ? value : defaultPattern;
         String modifiedFormattedMessage = iLoggingEvent.getFormattedMessage();
-        modifiedFormattedMessage = modifiedFormattedMessage.replaceAll("(\"Authorization.*$)", "\"Authorization: xxxxx\"");
+        modifiedFormattedMessage = modifiedFormattedMessage.replaceAll(pattern, replacement);
 
         System.out.println(
                 simpleDateFormat.format(new Date()) + " [" +
@@ -191,6 +195,13 @@ public class CustomConsoleAppender extends AppenderBase<ILoggingEvent> {
         );
     }
 }
+```
+
+The java class will get the value of the pattern from the environment variable. To run the test, first export the variable `MASK_PATTERN`
+
+```
+export MASK_PATTERN='(.*Authorization:) .*"'
+mvn test |tee out.log
 ```
 
 The result will be something like this, where `Authorization` header content is being masked
@@ -211,4 +222,10 @@ The result will be something like this, where `Authorization` header content is 
 10:50:10.273 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "Hello World[\r][\n]"
 10:50:10.273 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "0[\r][\n]"
 10:50:10.273 [main] DEBUG org.apache.hc.client5.http.wire - http-outgoing-1 << "[\r][\n]"
+```
+
+You can also add more patterns. For example, if Content-Type is going to be masked, then:
+
+```
+export MASK_PATTERN='(.*Authorization:|.*Content-Type:) .*"'
 ```
