@@ -31,7 +31,7 @@ public class CustomConsoleAppender extends AppenderBase<ILoggingEvent> {
 	String value = System.getenv("MASK_PATTERN");
         String pattern =  value != null ? value : defaultPattern;
         String modifiedFormattedMessage = iLoggingEvent.getFormattedMessage();
-        modifiedFormattedMessage = modifiedFormattedMessage.replaceAll(pattern, "$1 xxx\"");
+        modifiedFormattedMessage = modifiedFormattedMessage.replaceAll(pattern, replacement);
 
         System.out.println(
                 simpleDateFormat.format(new Date()) + " [" +
