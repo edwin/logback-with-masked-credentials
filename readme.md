@@ -229,3 +229,8 @@ You can also add more patterns. For example, if Content-Type is going to be mask
 ```
 export MASK_PATTERN='(.*Authorization:|.*Content-Type:) .*"'
 ```
+
+## Blog Post
+```
+https://edwin.baculsoft.com/2024/05/creating-a-logback-with-masked-pattern-to-hide-sensitive-data/
+```
